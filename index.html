@@ -7,9 +7,9 @@
   <meta name="apple-mobile-web-app-capable" content="yes"/>
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
   <meta name="apple-mobile-web-app-title" content="VetRx"/>
-  <meta name="description" content="Digital Prescription Tool for Dr. Arpita Sinha"/>
+  <meta name="description" content="Digital Veterinary Prescription Tool"/>
   <link rel="manifest" href="manifest.json"/>
-  <title>VetRx — Dr. Arpita Sinha</title>
+  <title>VetRx — Digital Prescription</title>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -20,272 +20,234 @@
       --light-sage: #c8deca; --accent: #c5a35a; --earth: #8b6f5e;
       --dark: #1e2420; --mid: #3d4a40; --text: #4a4a45;
       --warm-white: #f5f0e8; --border: rgba(122,158,126,0.25);
-      --radius: 14px; --safe-bottom: env(safe-area-inset-bottom, 0px);
+      --radius: 14px; --shadow: 0 2px 16px rgba(0,0,0,0.07);
     }
     html, body { height: 100%; overflow: hidden; }
-    body {
-      font-family: 'DM Sans', sans-serif;
-      background: var(--cream); color: var(--text);
-      display: flex; flex-direction: column;
-      -webkit-font-smoothing: antialiased;
-    }
+    body { font-family: 'DM Sans', sans-serif; background: var(--cream); color: var(--text); display: flex; flex-direction: column; }
 
-    /* ── TOP BAR ── */
     .app-header {
-      background: var(--dark); padding: 0.9rem 1.2rem;
+      background: var(--dark); padding: 0.85rem 1.2rem;
       display: flex; align-items: center; justify-content: space-between;
       border-bottom: 3px solid var(--accent); flex-shrink: 0;
-      padding-top: calc(0.9rem + env(safe-area-inset-top, 0px));
+      padding-top: calc(0.85rem + env(safe-area-inset-top));
     }
     .app-brand { display: flex; align-items: center; gap: 0.6rem; }
     .app-brand-icon { font-size: 1.4rem; }
     .app-brand-text { font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-weight: 700; color: var(--cream); }
-    .app-brand-sub { font-size: 0.6rem; color: var(--light-sage); letter-spacing: 0.08em; text-transform: uppercase; }
-    .app-doctor-name { font-family: 'Cormorant Garamond', serif; font-size: 0.95rem; color: var(--accent); font-weight: 600; text-align: right; }
-    .app-doctor-cred { font-size: 0.6rem; color: rgba(250,247,242,0.5); text-align: right; }
+    .app-brand-sub { font-size: 0.62rem; color: var(--light-sage); letter-spacing: 0.08em; text-transform: uppercase; }
+    .doctor-badge {
+      background: rgba(122,158,126,0.2); border: 1px solid rgba(122,158,126,0.3);
+      border-radius: 8px; padding: 0.3rem 0.7rem; text-align: right;
+    }
+    .doctor-badge-name { font-family: 'Cormorant Garamond', serif; font-size: 0.9rem; color: var(--accent); font-weight: 600; }
+    .doctor-badge-cred { font-size: 0.58rem; color: rgba(250,247,242,0.5); }
 
-    /* ── TAB BAR ── */
     .tab-bar {
       display: flex; background: var(--mid); flex-shrink: 0;
+      border-bottom: 1px solid rgba(122,158,126,0.2);
     }
     .tab-btn {
       flex: 1; padding: 0.75rem 0.5rem; border: none; background: none;
-      font-family: 'DM Sans', sans-serif; font-size: 0.75rem; font-weight: 500;
+      font-family: 'DM Sans', sans-serif; font-size: 0.78rem; font-weight: 500;
       color: rgba(250,247,242,0.5); cursor: pointer; transition: all 0.2s;
-      letter-spacing: 0.04em; display: flex; flex-direction: column;
-      align-items: center; gap: 0.2rem; border-bottom: 3px solid transparent;
+      display: flex; flex-direction: column; align-items: center; gap: 0.2rem;
     }
-    .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); background: rgba(197,163,90,0.08); }
+    .tab-btn.active { color: var(--accent); border-bottom: 2px solid var(--accent); }
     .tab-btn-icon { font-size: 1.1rem; }
 
-    /* ── SCREENS ── */
-    .screen { display: none; flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+    .screen { display: none; flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-bottom: calc(1rem + env(safe-area-inset-bottom)); }
     .screen.active { display: block; }
 
-    /* ── FORM SCREEN ── */
-    .form-screen { padding: 1rem 1rem calc(1rem + var(--safe-bottom)); }
+    /* ── DOCTOR SELECTOR ── */
+    .doctor-selector-wrap { padding: 1rem 1rem 0; }
+    .doctor-selector-card {
+      background: white; border-radius: var(--radius); padding: 1rem 1.2rem;
+      border: 1px solid var(--border); box-shadow: var(--shadow);
+      display: flex; align-items: center; gap: 1rem;
+    }
+    .doctor-selector-label { font-size: 0.72rem; font-weight: 700; color: var(--deep-sage); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.4rem; }
+    .doctor-selector { flex: 1; }
+    .doctor-select {
+      width: 100%; padding: 0.65rem 2.2rem 0.65rem 0.85rem;
+      border: 1.5px solid var(--border); border-radius: 10px;
+      font-size: 0.9rem; font-family: 'DM Sans', sans-serif; font-weight: 500;
+      background: var(--cream); color: var(--dark); outline: none;
+      -webkit-appearance: none; appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237a9e7e' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 0.8rem center;
+    }
+    .doctor-select:focus { border-color: var(--sage); background-color: white; }
+    .doctor-avatar {
+      width: 44px; height: 44px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--deep-sage), var(--sage));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.3rem; flex-shrink: 0;
+    }
 
+    /* ── FORM ── */
+    .form-screen { padding: 0.75rem 1rem 1rem; }
     .form-section {
       background: white; border-radius: var(--radius); padding: 1.2rem;
-      margin-bottom: 1rem; border: 1px solid var(--border);
-      box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+      margin-bottom: 1rem; border: 1px solid var(--border); box-shadow: var(--shadow);
     }
-    .form-section-title {
-      font-size: 0.68rem; font-weight: 600; letter-spacing: 0.1em;
-      text-transform: uppercase; color: var(--deep-sage);
-      margin-bottom: 1rem; padding-bottom: 0.6rem;
-      border-bottom: 2px solid var(--light-sage);
-    }
+    .form-section-title { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--deep-sage); margin-bottom: 1rem; padding-bottom: 0.6rem; border-bottom: 2px solid var(--light-sage); display: flex; align-items: center; gap: 0.4rem; }
     .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
     .form-grid.full { grid-template-columns: 1fr; }
+    .form-grid.three { grid-template-columns: 1fr 1fr 1fr; }
+    .span2 { grid-column: span 2; }
+    .span3 { grid-column: span 3; }
     .form-group { display: flex; flex-direction: column; gap: 0.3rem; }
     .form-group label { font-size: 0.72rem; font-weight: 500; color: var(--mid); }
     .form-group input, .form-group select, .form-group textarea {
-      padding: 0.65rem 0.8rem; border: 1.5px solid var(--border);
-      border-radius: 10px; font-size: 0.9rem; font-family: 'DM Sans', sans-serif;
-      background: var(--cream); color: var(--dark);
-      transition: border-color 0.2s; outline: none; width: 100%;
+      padding: 0.65rem 0.85rem; border: 1.5px solid var(--border);
+      border-radius: 10px; font-size: 0.88rem; font-family: 'DM Sans', sans-serif;
+      background: var(--cream); color: var(--dark); outline: none; transition: border-color 0.2s;
       -webkit-appearance: none; appearance: none;
     }
     .form-group select {
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237a9e7e' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
-      background-repeat: no-repeat; background-position: right 0.8rem center;
-      padding-right: 2.2rem;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237a9e7e' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 0.8rem center; padding-right: 2.2rem;
     }
-    .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
-      border-color: var(--sage); background: white;
-    }
-    .form-group textarea { resize: none; min-height: 80px; line-height: 1.5; }
-    .span-2 { grid-column: span 2; }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--sage); background: white; }
+    .form-group textarea { resize: none; min-height: 80px; line-height: 1.6; }
 
-    /* medicine rows */
-    .med-row {
-      background: var(--cream); border-radius: 10px; padding: 0.9rem;
-      margin-bottom: 0.75rem; border: 1px solid var(--border);
-    }
+    .med-row { background: var(--cream); border-radius: 10px; padding: 0.9rem; margin-bottom: 0.75rem; border: 1px solid var(--border); }
     .med-row-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; }
-    .med-num { font-size: 0.68rem; font-weight: 600; color: var(--deep-sage); background: var(--light-sage); padding: 0.2rem 0.65rem; border-radius: 100px; }
-    .med-remove { background: rgba(217,83,79,0.1); border: none; cursor: pointer; color: #d9534f; font-size: 0.85rem; padding: 0.3rem 0.6rem; border-radius: 6px; }
+    .med-num { font-size: 0.68rem; font-weight: 700; color: var(--deep-sage); background: var(--light-sage); padding: 0.2rem 0.65rem; border-radius: 100px; }
+    .med-remove { background: rgba(217,83,79,0.1); border: none; cursor: pointer; color: #d9534f; font-size: 0.82rem; padding: 0.3rem 0.6rem; border-radius: 6px; font-family: 'DM Sans', sans-serif; }
+    .add-med-btn { width: 100%; padding: 0.75rem; border: 2px dashed var(--border); border-radius: 10px; background: none; cursor: pointer; font-size: 0.82rem; color: var(--sage); font-family: 'DM Sans', sans-serif; display: flex; align-items: center; justify-content: center; gap: 0.4rem; }
 
-    .add-med-btn {
-      width: 100%; padding: 0.75rem; border: 2px dashed var(--border);
-      border-radius: 10px; background: none; cursor: pointer;
-      font-size: 0.85rem; color: var(--sage); font-family: 'DM Sans', sans-serif;
-      display: flex; align-items: center; justify-content: center; gap: 0.4rem;
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    .generate-btn {
-      width: 100%; padding: 1rem; background: var(--deep-sage); color: white;
-      border: none; border-radius: var(--radius); font-size: 1rem; font-weight: 600;
-      font-family: 'DM Sans', sans-serif; cursor: pointer; margin-top: 0.5rem;
-      letter-spacing: 0.04em; -webkit-tap-highlight-color: transparent;
-      box-shadow: 0 4px 16px rgba(74,110,78,0.3);
-    }
+    .generate-btn { width: 100%; padding: 1.1rem; background: var(--deep-sage); color: white; border: none; border-radius: var(--radius); font-size: 1rem; font-weight: 600; font-family: 'DM Sans', sans-serif; cursor: pointer; margin-top: 0.5rem; letter-spacing: 0.04em; box-shadow: 0 4px 20px rgba(74,110,78,0.3); -webkit-tap-highlight-color: transparent; }
     .generate-btn:active { transform: scale(0.98); }
 
-    /* ── PREVIEW SCREEN ── */
-    .preview-screen { padding: 1rem 1rem calc(1rem + var(--safe-bottom)); }
-
-    .preview-actions {
-      display: flex; gap: 0.75rem; margin-bottom: 1rem;
-    }
-    .download-btn {
-      flex: 1; padding: 0.85rem; background: var(--accent); color: white;
-      border: none; border-radius: var(--radius); font-size: 0.9rem; font-weight: 600;
-      font-family: 'DM Sans', sans-serif; cursor: pointer;
-      display: flex; align-items: center; justify-content: center; gap: 0.4rem;
-      box-shadow: 0 4px 16px rgba(197,163,90,0.35);
-      -webkit-tap-highlight-color: transparent;
-    }
+    /* ── PREVIEW ── */
+    .preview-screen { padding: 1rem; }
+    .preview-actions { display: flex; gap: 0.75rem; margin-bottom: 1rem; }
+    .download-btn { flex: 1; padding: 0.85rem; background: var(--accent); color: white; border: none; border-radius: var(--radius); font-size: 0.9rem; font-weight: 600; font-family: 'DM Sans', sans-serif; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.4rem; box-shadow: 0 4px 16px rgba(197,163,90,0.35); -webkit-tap-highlight-color: transparent; }
     .download-btn:active { transform: scale(0.98); }
-    .share-btn {
-      padding: 0.85rem 1.1rem; background: var(--mid); color: white;
-      border: none; border-radius: var(--radius); font-size: 1rem;
-      cursor: pointer; -webkit-tap-highlight-color: transparent;
-    }
+    .new-rx-btn { padding: 0.85rem 1.2rem; background: white; color: var(--deep-sage); border: 1.5px solid var(--border); border-radius: var(--radius); font-size: 0.9rem; font-weight: 600; font-family: 'DM Sans', sans-serif; cursor: pointer; }
+    .preview-empty { text-align: center; padding: 3rem 2rem; color: rgba(61,74,64,0.35); }
+    .preview-empty-icon { font-size: 3.5rem; margin-bottom: 1rem; display: block; }
 
-    .preview-empty {
-      display: flex; flex-direction: column; align-items: center;
-      justify-content: center; min-height: 60vh; text-align: center;
-      color: rgba(61,74,64,0.4); padding: 2rem;
-    }
-    .preview-empty-icon { font-size: 3rem; margin-bottom: 1rem; opacity: 0.4; }
-    .preview-empty p { font-size: 0.9rem; line-height: 1.7; }
-    .go-form-btn {
-      margin-top: 1.2rem; padding: 0.75rem 1.5rem;
-      background: var(--deep-sage); color: white; border: none;
-      border-radius: 100px; font-family: 'DM Sans', sans-serif;
-      font-size: 0.85rem; font-weight: 600; cursor: pointer;
-    }
-
-    /* prescription card in preview */
-    .prescription-preview-wrap {
-      border-radius: var(--radius); overflow: hidden;
-      box-shadow: 0 4px 24px rgba(0,0,0,0.12);
-    }
-
-    /* ── PRESCRIPTION STYLES (shared) ── */
-    .prescription { background: white; font-family: 'DM Sans', sans-serif; }
-    .rx-header { background: linear-gradient(135deg, var(--dark) 0%, var(--mid) 100%); padding: 1.2rem 1.4rem; position: relative; overflow: hidden; }
-    .rx-header::after { content: '🐾'; position: absolute; right: 1rem; top: 50%; transform: translateY(-50%); font-size: 4rem; opacity: 0.06; }
-    .rx-header-name { font-family: 'Cormorant Garamond', serif; font-size: 1.8rem; font-weight: 700; color: white; line-height: 1; }
+    /* ── PRESCRIPTION ── */
+    .prescription { background: white; border: 2px solid var(--deep-sage); border-radius: 6px; overflow: hidden; font-family: 'DM Sans', sans-serif; }
+    .rx-header { background: linear-gradient(135deg, var(--dark) 0%, var(--mid) 100%); padding: 1.2rem 1.3rem; position: relative; overflow: hidden; }
+    .rx-header::before { content: '🐾'; position: absolute; right: 0.8rem; top: 50%; transform: translateY(-50%); font-size: 4rem; opacity: 0.07; }
+    .rx-header-name { font-family: 'Cormorant Garamond', serif; font-size: 1.7rem; font-weight: 700; color: white; line-height: 1; }
     .rx-header-name em { color: var(--accent); font-style: italic; }
-    .rx-header-cred { font-size: 0.72rem; color: var(--light-sage); margin-top: 0.35rem; line-height: 1.55; }
-    .rx-header-tag { display: inline-block; background: var(--accent); color: white; font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase; padding: 0.2rem 0.7rem; border-radius: 100px; margin-top: 0.4rem; }
-    .rx-meta-bar { display: flex; justify-content: space-between; align-items: center; background: var(--light-sage); padding: 0.45rem 1rem; font-size: 0.72rem; color: var(--dark); font-weight: 500; flex-wrap: wrap; gap: 0.3rem; }
-    .rx-body { padding: 1rem 1rem; }
+    .rx-header-cred { font-size: 0.72rem; color: var(--light-sage); margin-top: 0.35rem; line-height: 1.6; }
+    .rx-header-tag { display: inline-block; background: var(--accent); color: white; font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase; padding: 0.2rem 0.8rem; border-radius: 100px; margin-top: 0.4rem; }
+    .rx-meta-bar { display: flex; justify-content: space-between; background: var(--light-sage); padding: 0.45rem 1rem; font-size: 0.7rem; color: var(--dark); font-weight: 500; flex-wrap: wrap; gap: 0.2rem; }
+    .rx-body { padding: 0.9rem 1rem; }
     .rx-two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 0.75rem; }
     .rx-card { border: 1.5px solid var(--border); border-radius: 8px; overflow: hidden; }
-    .rx-card-head { background: linear-gradient(90deg, var(--deep-sage), var(--sage)); padding: 0.35rem 0.75rem; font-size: 0.62rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: white; }
+    .rx-card-head { background: linear-gradient(90deg, var(--deep-sage), var(--sage)); padding: 0.35rem 0.75rem; font-size: 0.62rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: white; }
     .rx-card-body { padding: 0.6rem 0.75rem; background: #fafffe; }
     .rx-field { margin-bottom: 0.28rem; display: flex; gap: 0.3rem; font-size: 0.75rem; line-height: 1.4; }
-    .rx-field-label { color: var(--sage); font-weight: 600; min-width: 55px; flex-shrink: 0; }
+    .rx-field-label { color: var(--sage); font-weight: 600; min-width: 58px; flex-shrink: 0; }
     .rx-field-val { color: var(--dark); }
     .rx-section { margin-bottom: 0.75rem; }
     .rx-section-title { font-size: 0.62rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: white; padding: 0.3rem 0.75rem; background: linear-gradient(90deg, var(--earth), #a8876e); border-radius: 4px 4px 0 0; }
-    .rx-section-body { border: 1.5px solid var(--border); border-top: none; border-radius: 0 0 8px 8px; padding: 0.65rem 0.75rem; font-size: 0.78rem; color: var(--dark); line-height: 1.6; background: white; min-height: 36px; }
+    .rx-section-body { border: 1.5px solid var(--border); border-top: none; border-radius: 0 0 8px 8px; padding: 0.65rem 0.75rem; font-size: 0.78rem; color: var(--dark); line-height: 1.65; background: white; min-height: 36px; }
     .rx-med-title { font-size: 0.62rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: white; padding: 0.3rem 0.75rem; background: linear-gradient(90deg, var(--deep-sage), var(--sage)); border-radius: 4px 4px 0 0; }
-    .rx-med-table { width: 100%; border-collapse: collapse; border: 1.5px solid var(--border); border-top: none; border-radius: 0 0 8px 8px; overflow: hidden; margin-bottom: 0.75rem; font-size: 0.72rem; }
-    .rx-med-table th { background: var(--light-sage); padding: 0.38rem 0.5rem; font-size: 0.6rem; letter-spacing: 0.05em; text-transform: uppercase; color: var(--deep-sage); text-align: left; font-weight: 600; }
-    .rx-med-table td { padding: 0.42rem 0.5rem; color: var(--dark); border-top: 1px solid rgba(122,158,126,0.12); }
+    .rx-med-table { width: 100%; border-collapse: collapse; border: 1.5px solid var(--border); border-top: none; border-radius: 0 0 8px 8px; overflow: hidden; margin-bottom: 0.75rem; }
+    .rx-med-table th { background: var(--light-sage); padding: 0.4rem 0.5rem; font-size: 0.6rem; letter-spacing: 0.05em; text-transform: uppercase; color: var(--deep-sage); text-align: left; font-weight: 700; }
+    .rx-med-table td { padding: 0.45rem 0.5rem; font-size: 0.73rem; color: var(--dark); border-top: 1px solid rgba(122,158,126,0.12); }
     .rx-med-table tr:nth-child(even) td { background: rgba(200,222,202,0.15); }
-    .rx-med-num { display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px; border-radius: 50%; background: var(--deep-sage); color: white; font-size: 0.62rem; font-weight: 700; }
-    .rx-footer { background: linear-gradient(135deg, var(--dark) 0%, var(--mid) 100%); padding: 1rem 1.2rem; display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; }
+    .rx-med-num { display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px; border-radius: 50%; background: var(--deep-sage); color: white; font-size: 0.6rem; font-weight: 700; }
+    .rx-footer { background: linear-gradient(135deg, var(--dark) 0%, var(--mid) 100%); padding: 0.9rem 1rem; display: flex; justify-content: space-between; align-items: center; gap: 0.75rem; flex-wrap: wrap; }
     .rx-sig-line { width: 100px; height: 1px; background: rgba(255,255,255,0.3); margin-bottom: 0.3rem; }
     .rx-sig-text { font-size: 0.65rem; color: rgba(255,255,255,0.5); }
-    .rx-payment { text-align: right; background: rgba(197,163,90,0.15); border: 2px solid var(--accent); border-radius: 10px; padding: 0.65rem 1rem; }
+    .rx-payment { text-align: right; background: rgba(197,163,90,0.18); border: 2px solid var(--accent); border-radius: 8px; padding: 0.6rem 0.9rem; }
     .rx-payment-fee { font-size: 0.65rem; color: var(--light-sage); margin-bottom: 0.15rem; text-transform: uppercase; letter-spacing: 0.06em; }
-    .rx-payment-amount { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; font-weight: 700; color: var(--accent); }
-    .rx-payment-upi-row { font-size: 0.65rem; color: rgba(255,255,255,0.45); display: flex; align-items: center; gap: 0.3rem; margin-top: 0.12rem; }
-    .rx-payment-upi-val { color: var(--accent); font-weight: 700; font-size: 0.75rem; background: rgba(197,163,90,0.2); padding: 0.08rem 0.4rem; border-radius: 4px; border: 1px solid rgba(197,163,90,0.35); }
-    .rx-watermark { text-align: center; padding: 0.4rem; font-size: 0.6rem; color: rgba(122,158,126,0.45); letter-spacing: 0.08em; background: var(--cream); }
+    .rx-payment-amount { font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; font-weight: 700; color: var(--accent); }
+    .rx-payment-upi { margin-top: 0.35rem; }
+    .rx-payment-upi-row { font-size: 0.65rem; color: rgba(255,255,255,0.45); display: flex; align-items: center; gap: 0.3rem; margin-top: 0.12rem; flex-wrap: wrap; justify-content: flex-end; }
+    .rx-payment-upi-val { color: var(--accent); font-weight: 700; font-size: 0.75rem; background: rgba(197,163,90,0.2); padding: 0.08rem 0.45rem; border-radius: 4px; border: 1px solid rgba(197,163,90,0.4); }
+    .rx-watermark { text-align: center; padding: 0.4rem; font-size: 0.58rem; color: rgba(122,158,126,0.45); letter-spacing: 0.08em; background: var(--cream); }
 
-    /* PWA install banner */
-    .install-banner {
-      display: none; position: fixed; bottom: 0; left: 0; right: 0;
-      background: var(--dark); border-top: 2px solid var(--accent);
-      padding: 1rem 1.2rem calc(1rem + var(--safe-bottom));
-      flex-direction: column; gap: 0.6rem; z-index: 999;
-      box-shadow: 0 -4px 20px rgba(0,0,0,0.2);
-    }
-    .install-banner.show { display: flex; }
-    .install-banner-text { font-size: 0.82rem; color: var(--cream); }
-    .install-banner-text strong { color: var(--accent); }
-    .install-banner-actions { display: flex; gap: 0.6rem; }
-    .install-yes { flex: 1; padding: 0.6rem; background: var(--accent); color: white; border: none; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 0.82rem; cursor: pointer; }
-    .install-no { padding: 0.6rem 1rem; background: rgba(255,255,255,0.08); color: rgba(250,247,242,0.6); border: none; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.82rem; cursor: pointer; }
-
-    /* off-screen render for PDF */
     #rx-render-area { position: fixed; left: -9999px; top: 0; width: 794px; background: white; z-index: -1; }
 
-    /* toast */
-    .toast {
-      position: fixed; bottom: calc(80px + var(--safe-bottom)); left: 50%; transform: translateX(-50%) translateY(20px);
-      background: var(--dark); color: var(--cream); padding: 0.6rem 1.2rem;
-      border-radius: 100px; font-size: 0.8rem; opacity: 0;
-      transition: all 0.3s; z-index: 9999; white-space: nowrap;
-      border: 1px solid var(--accent);
-    }
-    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    #install-banner { display: none; position: fixed; bottom: 0; left: 0; right: 0; background: var(--dark); border-top: 2px solid var(--accent); padding: 1rem 1.2rem; padding-bottom: calc(1rem + env(safe-area-inset-bottom)); flex-direction: column; gap: 0.75rem; z-index: 999; }
+    #install-banner.show { display: flex; }
+    .install-banner-text { color: var(--cream); font-size: 0.85rem; line-height: 1.5; }
+    .install-banner-text strong { color: var(--accent); }
+    .install-banner-btns { display: flex; gap: 0.75rem; }
+    .install-btn { flex: 1; padding: 0.7rem; background: var(--deep-sage); color: white; border: none; border-radius: 10px; font-family: 'DM Sans', sans-serif; font-size: 0.85rem; font-weight: 600; cursor: pointer; }
+    .install-dismiss { padding: 0.7rem 1rem; background: none; color: rgba(250,247,242,0.5); border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; font-family: 'DM Sans', sans-serif; font-size: 0.85rem; cursor: pointer; }
   </style>
 </head>
 <body>
 
-<!-- APP HEADER -->
 <header class="app-header">
   <div class="app-brand">
     <div class="app-brand-icon">🩺</div>
     <div>
       <div class="app-brand-text">VetRx</div>
-      <div class="app-brand-sub">Digital Prescription</div>
+      <div class="app-brand-sub">Prescription Tool</div>
     </div>
   </div>
-  <div>
-    <div class="app-doctor-name">Dr. Arpita Sinha</div>
-    <div class="app-doctor-cred">BVSc &amp; AH · Vet Doctor</div>
+  <div class="doctor-badge" id="headerDoctorBadge">
+    <div class="doctor-badge-name">Select Doctor</div>
+    <div class="doctor-badge-cred">to begin</div>
   </div>
 </header>
 
-<!-- TAB BAR -->
 <div class="tab-bar">
   <button class="tab-btn active" onclick="switchTab('form')" id="tab-form">
-    <span class="tab-btn-icon">📝</span> Form
+    <span class="tab-btn-icon">📝</span>Form
   </button>
   <button class="tab-btn" onclick="switchTab('preview')" id="tab-preview">
-    <span class="tab-btn-icon">📄</span> Preview
+    <span class="tab-btn-icon">📄</span>Preview
   </button>
 </div>
 
 <!-- FORM SCREEN -->
 <div class="screen active form-screen" id="screen-form">
 
-  <!-- Owner -->
+  <!-- DOCTOR SELECTOR -->
+  <div class="doctor-selector-wrap">
+    <div class="doctor-selector-card">
+      <div class="doctor-avatar">👨‍⚕️</div>
+      <div class="doctor-selector" style="flex:1">
+        <div class="doctor-selector-label">Select Prescribing Doctor</div>
+        <select class="doctor-select" id="doctorSelect" onchange="onDoctorChange()">
+          <option value="">— Choose a doctor —</option>
+          <option value="arpita">Dr. Arpita Sinha</option>
+          <option value="pankaj">Dr. Pankaj Kumar</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div style="height:0.75rem"></div>
+
+  <!-- OWNER -->
   <div class="form-section">
     <div class="form-section-title">👤 Owner Details</div>
     <div class="form-grid">
-      <div class="form-group span-2">
+      <div class="form-group">
         <label>Owner Name *</label>
         <input type="text" id="ownerName" placeholder="e.g. Ramesh Kumar" autocomplete="name"/>
       </div>
-      <div class="form-group span-2">
+      <div class="form-group">
         <label>Contact Number *</label>
-        <input type="tel" id="ownerPhone" placeholder="e.g. 9876543210" inputmode="tel"/>
+        <input type="tel" id="ownerPhone" placeholder="9876543210" autocomplete="tel"/>
       </div>
-      <div class="form-group span-2">
+      <div class="form-group span2">
         <label>Address</label>
         <input type="text" id="ownerAddress" placeholder="City / Village / Area"/>
       </div>
     </div>
   </div>
 
-  <!-- Animal -->
+  <!-- ANIMAL -->
   <div class="form-section">
-    <div class="form-section-title">🐾 Patient (Animal) Details</div>
-    <div class="form-grid">
+    <div class="form-section-title">🐾 Animal Details</div>
+    <div class="form-grid three">
       <div class="form-group">
-        <label>Animal Name *</label>
-        <input type="text" id="animalName" placeholder="e.g. Bruno"/>
+        <label>Name *</label>
+        <input type="text" id="animalName" placeholder="Bruno"/>
       </div>
       <div class="form-group">
         <label>Species *</label>
@@ -298,7 +260,15 @@
       </div>
       <div class="form-group">
         <label>Breed</label>
-        <input type="text" id="animalBreed" placeholder="e.g. Labrador"/>
+        <input type="text" id="animalBreed" placeholder="Labrador"/>
+      </div>
+      <div class="form-group">
+        <label>Age</label>
+        <input type="text" id="animalAge" placeholder="3 years"/>
+      </div>
+      <div class="form-group">
+        <label>Weight</label>
+        <input type="text" id="animalWeight" placeholder="12 kg"/>
       </div>
       <div class="form-group">
         <label>Sex</label>
@@ -308,20 +278,12 @@
           <option>Male (Neutered)</option><option>Female (Spayed)</option>
         </select>
       </div>
-      <div class="form-group">
-        <label>Age</label>
-        <input type="text" id="animalAge" placeholder="e.g. 3 years"/>
-      </div>
-      <div class="form-group">
-        <label>Weight (kg)</label>
-        <input type="text" id="animalWeight" placeholder="e.g. 12 kg" inputmode="decimal"/>
-      </div>
     </div>
   </div>
 
-  <!-- Clinical -->
+  <!-- CLINICAL -->
   <div class="form-section">
-    <div class="form-section-title">🔬 Clinical Information</div>
+    <div class="form-section-title">🔬 Clinical Info</div>
     <div class="form-grid full">
       <div class="form-group">
         <label>Symptoms / Chief Complaints *</label>
@@ -346,65 +308,99 @@
     </div>
   </div>
 
-  <!-- Medications -->
+  <!-- MEDICATIONS -->
   <div class="form-section">
     <div class="form-section-title">💊 Medications</div>
     <div id="medContainer"></div>
     <button class="add-med-btn" onclick="addMed()">＋ Add Medicine</button>
   </div>
 
-  <button class="generate-btn" onclick="generateAndSwitch()">✦ Generate Prescription</button>
-  <div style="height:1rem"></div>
+  <button class="generate-btn" onclick="generateRx()">✦ Generate Prescription</button>
 </div>
 
 <!-- PREVIEW SCREEN -->
 <div class="screen preview-screen" id="screen-preview">
   <div class="preview-actions">
     <button class="download-btn" onclick="downloadPDF()">⬇ Download PDF</button>
-    <button class="share-btn" onclick="shareRx()" title="Share">📤</button>
+    <button class="new-rx-btn" onclick="newRx()">＋ New</button>
   </div>
-  <div class="preview-empty" id="emptyState">
-    <div class="preview-empty-icon">📋</div>
-    <p>Fill in the form and generate<br>a prescription to preview here.</p>
-    <button class="go-form-btn" onclick="switchTab('form')">← Go to Form</button>
+  <div id="prescriptionPreview">
+    <div class="preview-empty">
+      <span class="preview-empty-icon">📋</span>
+      <p style="font-size:0.88rem;line-height:1.7;color:rgba(61,74,64,0.4)">
+        Select a doctor, fill the form<br>and tap <strong style="color:var(--deep-sage)">Generate Prescription</strong>
+      </p>
+    </div>
   </div>
-  <div id="prescriptionPreview" style="display:none" class="prescription-preview-wrap"></div>
-  <div style="height:1rem"></div>
 </div>
 
-<!-- OFF-SCREEN PDF RENDER -->
 <div id="rx-render-area"></div>
 
-<!-- PWA INSTALL BANNER -->
-<div class="install-banner" id="installBanner">
+<div id="install-banner">
   <div class="install-banner-text">
-    📲 Add <strong>VetRx</strong> to your home screen for quick access — works offline too!
+    <strong>📲 Install VetRx</strong><br>
+    Add to home screen — works offline too!
   </div>
-  <div class="install-banner-actions">
-    <button class="install-yes" onclick="installPWA()">Add to Home Screen</button>
-    <button class="install-no" onclick="dismissInstall()">Not now</button>
+  <div class="install-banner-btns">
+    <button class="install-btn" onclick="installApp()">Install App</button>
+    <button class="install-dismiss" onclick="dismissInstall()">Not now</button>
   </div>
 </div>
 
-<!-- TOAST -->
-<div class="toast" id="toast"></div>
-
 <script>
-  // ── TABS ──
-  function switchTab(tab) {
-    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    document.getElementById('screen-' + tab).classList.add('active');
-    document.getElementById('tab-' + tab).classList.add('active');
-    // scroll to top
-    document.getElementById('screen-' + tab).scrollTop = 0;
+  // ── DOCTOR PROFILES ──
+  const DOCTORS = {
+    arpita: {
+      name: 'Dr. Arpita Sinha',
+      nameHTML: 'Dr. <em>Arpita</em> Sinha',
+      shortName: 'Dr. Arpita Sinha',
+      cred: 'BVSc &amp; AH — Bachelor of Veterinary Science &amp; Animal Husbandry',
+      college: 'College of Veterinary Science &amp; Animal Husbandry, Ranchi, Jharkhand',
+      tag: '🐾 Veterinary Doctor',
+      fee: '₹300',
+      upiNum: '9304143929',
+      upiId: 'arpita9809@okaxis',
+      sigText: 'Dr. Arpita Sinha | BVSc &amp; AH',
+      badgeName: 'Dr. Arpita Sinha',
+      badgeCred: 'BVSc & AH'
+    },
+    pankaj: {
+      name: 'Dr. Pankaj Kumar',
+      nameHTML: 'Dr. <em>Pankaj</em> Kumar',
+      shortName: 'Dr. Pankaj Kumar',
+      cred: 'M.V.Sc, PGDAEM | ADTO Veterinary Office, C.I.D (Dog Squad), Jharkhand',
+      college: 'Pet Consultant — Pet Clinic Ranchi &amp; Petopia Multispeciality Vet Care, Ranchi | Ex Zonal Secretary (Central Zone) I.V.A, Chennai',
+      tag: '🐾 Veterinary Specialist',
+      fee: '₹500',
+      upiNum: '9304143929',
+      upiId: 'arpita9809@okaxis',
+      sigText: 'Dr. Pankaj Kumar | M.V.Sc, PGDAEM',
+      badgeName: 'Dr. Pankaj Kumar',
+      badgeCred: 'M.V.Sc, PGDAEM'
+    }
+  };
+
+  let selectedDoctor = null;
+
+  function onDoctorChange() {
+    const key = document.getElementById('doctorSelect').value;
+    selectedDoctor = key ? DOCTORS[key] : null;
+    const badge = document.getElementById('headerDoctorBadge');
+    if (selectedDoctor) {
+      badge.querySelector('.doctor-badge-name').textContent = selectedDoctor.badgeName;
+      badge.querySelector('.doctor-badge-cred').textContent = selectedDoctor.badgeCred;
+    } else {
+      badge.querySelector('.doctor-badge-name').textContent = 'Select Doctor';
+      badge.querySelector('.doctor-badge-cred').textContent = 'to begin';
+    }
   }
 
-  // ── TOAST ──
-  function showToast(msg) {
-    const t = document.getElementById('toast');
-    t.textContent = msg; t.classList.add('show');
-    setTimeout(() => t.classList.remove('show'), 2500);
+  // ── TABS ──
+  function switchTab(name) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('screen-' + name).classList.add('active');
+    document.getElementById('tab-' + name).classList.add('active');
   }
 
   // ── MED ROWS ──
@@ -412,7 +408,6 @@
   function addMed() {
     medCount++;
     const n = medCount;
-    const c = document.getElementById('medContainer');
     const div = document.createElement('div');
     div.className = 'med-row'; div.id = 'med-' + n;
     div.innerHTML = `
@@ -429,68 +424,66 @@
       <div class="form-grid">
         <div class="form-group">
           <label>Dosage</label>
-          <input type="text" id="medDose${n}" placeholder="e.g. 250mg"/>
+          <input type="text" id="medDose${n}" placeholder="250mg"/>
         </div>
         <div class="form-group">
           <label>Frequency</label>
-          <input type="text" id="medFreq${n}" placeholder="e.g. Twice daily"/>
+          <input type="text" id="medFreq${n}" placeholder="Twice daily"/>
         </div>
         <div class="form-group">
           <label>Duration</label>
-          <input type="text" id="medDur${n}" placeholder="e.g. 5 days"/>
+          <input type="text" id="medDur${n}" placeholder="5 days"/>
         </div>
         <div class="form-group">
           <label>Route</label>
           <select id="medRoute${n}">
             <option value="">Route...</option>
-            <option>Oral</option><option>Injection (IV)</option>
-            <option>Injection (IM)</option><option>Injection (SC)</option>
-            <option>Topical</option><option>Eye Drops</option>
+            <option>Oral</option><option>Injection (IV)</option><option>Injection (IM)</option>
+            <option>Injection (SC)</option><option>Topical</option><option>Eye Drops</option>
             <option>Ear Drops</option><option>Nebulisation</option><option>Other</option>
           </select>
         </div>
       </div>`;
-    c.appendChild(div);
+    document.getElementById('medContainer').appendChild(div);
   }
   function removeMed(n) { const el = document.getElementById('med-'+n); if(el) el.remove(); }
 
+  // ── HELPERS ──
   function val(id) { const el = document.getElementById(id); return el ? el.value.trim() : ''; }
-
   function getMeds() {
-    const rows = document.querySelectorAll('.med-row');
-    return Array.from(rows).map(row => {
+    const meds = [];
+    document.querySelectorAll('.med-row').forEach(row => {
       const n = row.id.replace('med-','');
       const name = val('medName'+n);
-      return name ? { name, dose: val('medDose'+n), freq: val('medFreq'+n), dur: val('medDur'+n), route: val('medRoute'+n) } : null;
-    }).filter(Boolean);
+      if(name) meds.push({ name, dose:val('medDose'+n), freq:val('medFreq'+n), dur:val('medDur'+n), route:val('medRoute'+n) });
+    });
+    return meds;
   }
-
-  function today() { return new Date().toLocaleDateString('en-IN', { day:'2-digit', month:'long', year:'numeric' }); }
+  function today() { return new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'long',year:'numeric'}); }
   function rxId() {
     const d = new Date();
-    return 'RX' + d.getFullYear().toString().slice(2) + String(d.getMonth()+1).padStart(2,'0') + String(d.getDate()).padStart(2,'0') + '-' + String(Math.floor(Math.random()*900)+100);
+    return 'RX'+d.getFullYear().toString().slice(2)+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0')+'-'+String(Math.floor(Math.random()*900)+100);
   }
 
-  function buildRxHTML(meds, elId) {
+  // ── BUILD PRESCRIPTION ──
+  function buildRxHTML(meds, elId, doc) {
     const medRows = meds.length
-      ? meds.map((m,i) => `<tr>
+      ? meds.map((m,i)=>`<tr>
           <td><span class="rx-med-num">${i+1}</span></td>
           <td><strong>${m.name}</strong></td>
-          <td>${m.dose||'—'}</td>
-          <td>${m.freq||'—'}</td>
-          <td>${m.dur||'—'}</td>
-          <td>${m.route||'—'}</td>
+          <td>${m.dose||'—'}</td><td>${m.freq||'—'}</td>
+          <td>${m.dur||'—'}</td><td>${m.route||'—'}</td>
         </tr>`).join('')
       : `<tr><td colspan="6" style="text-align:center;color:#aaa;font-style:italic;padding:0.8rem;font-size:0.75rem">No medications added</td></tr>`;
 
     return `<div class="prescription" id="${elId}">
       <div class="rx-header">
-        <div class="rx-header-name">Dr. <em>Arpita</em> Sinha</div>
-        <div class="rx-header-cred">BVSc &amp; AH — Bachelor of Veterinary Science &amp; Animal Husbandry<br>College of Veterinary Science &amp; Animal Husbandry, Ranchi, Jharkhand</div>
-        <div class="rx-header-tag">🐾 Veterinary Doctor</div>
+        <div class="rx-header-name">${doc.nameHTML}</div>
+        <div class="rx-header-cred">${doc.cred}<br>${doc.college}</div>
+        <div class="rx-header-tag">${doc.tag}</div>
       </div>
       <div class="rx-meta-bar">
-        <span>📄 <strong>${rxId()}</strong></span>
+        <span>📄 ID: <strong>${rxId()}</strong></span>
         <span>📅 <strong>${today()}</strong></span>
       </div>
       <div class="rx-body">
@@ -527,51 +520,63 @@
           <div class="rx-section-title">✦ Diagnosis</div>
           <div class="rx-section-body" style="font-weight:600">${val('diagnosis')||'<em style="color:#aaa;font-weight:400">Not specified</em>'}</div>
         </div>
-        ${val('history') ? `<div class="rx-section"><div class="rx-section-title">📋 Patient History</div><div class="rx-section-body">${val('history')}</div></div>` : ''}
+        ${val('history')?`<div class="rx-section"><div class="rx-section-title">📋 Patient History</div><div class="rx-section-body">${val('history')}</div></div>`:''}
         <div class="rx-med-title">💊 Rx — Medications</div>
         <table class="rx-med-table">
           <thead><tr><th>#</th><th>Medicine</th><th>Dose</th><th>Freq</th><th>Dur</th><th>Route</th></tr></thead>
           <tbody>${medRows}</tbody>
         </table>
-        ${val('followup') ? `<div class="rx-section"><div class="rx-section-title">📅 Follow-up &amp; Instructions</div><div class="rx-section-body">${val('followup')}</div></div>` : ''}
+        ${val('followup')?`<div class="rx-section"><div class="rx-section-title">📅 Follow-up &amp; Instructions</div><div class="rx-section-body">${val('followup')}</div></div>`:''}
       </div>
       <div class="rx-footer">
-        <div class="rx-sig">
+        <div>
           <div class="rx-sig-line"></div>
-          <div class="rx-sig-text">Dr. Arpita Sinha | BVSc &amp; AH</div>
+          <div class="rx-sig-text">${doc.sigText}</div>
         </div>
         <div class="rx-payment">
           <div class="rx-payment-fee">Consultation Fee</div>
-          <div class="rx-payment-amount">₹300</div>
+          <div class="rx-payment-amount">${doc.fee}</div>
           <div class="rx-payment-upi">
-            <div class="rx-payment-upi-row">UPI No: <span class="rx-payment-upi-val">9304143929</span></div>
-            <div class="rx-payment-upi-row">UPI ID: <span class="rx-payment-upi-val">arpita9809@okaxis</span></div>
+            <div class="rx-payment-upi-row">UPI No: <span class="rx-payment-upi-val">${doc.upiNum}</span></div>
+            <div class="rx-payment-upi-row">UPI ID: <span class="rx-payment-upi-val">${doc.upiId}</span></div>
           </div>
         </div>
       </div>
-      <div class="rx-watermark">VetRx · Dr. Arpita Sinha · Digital Veterinary Prescription</div>
+      <div class="rx-watermark">Generated via VetRx · ${doc.name} · Digital Veterinary Prescription</div>
     </div>`;
   }
 
-  function generateAndSwitch() {
+  // ── GENERATE ──
+  function generateRx() {
+    if (!selectedDoctor) { alert('Please select a doctor first!'); return; }
+    if (!val('animalName') || !val('ownerName')) { alert('Please fill in at least the animal name and owner name.'); return; }
     const meds = getMeds();
-    document.getElementById('emptyState').style.display = 'none';
-    const preview = document.getElementById('prescriptionPreview');
-    preview.style.display = 'block';
-    preview.innerHTML = buildRxHTML(meds, 'preview-inner');
+    document.getElementById('prescriptionPreview').innerHTML = buildRxHTML(meds, 'rx-preview-inner', selectedDoctor);
     switchTab('preview');
-    showToast('✅ Prescription generated!');
   }
 
-  async function downloadPDF() {
-    if (document.getElementById('prescriptionPreview').style.display === 'none') {
-      showToast('⚠️ Generate a prescription first'); return;
+  // ── NEW RX ──
+  function newRx() {
+    if (confirm('Start a new prescription? Current data will be cleared.')) {
+      document.querySelectorAll('input, textarea').forEach(el => el.value = '');
+      document.querySelectorAll('select').forEach(el => el.selectedIndex = 0);
+      document.getElementById('medContainer').innerHTML = '';
+      medCount = 0; selectedDoctor = null;
+      onDoctorChange();
+      addMed();
+      document.getElementById('prescriptionPreview').innerHTML = `<div class="preview-empty"><span class="preview-empty-icon">📋</span><p style="font-size:0.88rem;line-height:1.7;color:rgba(61,74,64,0.4)">Select a doctor, fill the form<br>and tap <strong style="color:var(--deep-sage)">Generate Prescription</strong></p></div>`;
+      switchTab('form');
     }
+  }
+
+  // ── DOWNLOAD PDF ──
+  async function downloadPDF() {
+    if (!selectedDoctor) { alert('Please generate a prescription first!'); return; }
     const btn = document.querySelector('.download-btn');
     btn.textContent = '⏳ Generating...'; btn.disabled = true;
     try {
       const renderArea = document.getElementById('rx-render-area');
-      renderArea.innerHTML = buildRxHTML(getMeds(), 'pdf-rx');
+      renderArea.innerHTML = buildRxHTML(getMeds(), 'pdf-rx', selectedDoctor);
       const el = document.getElementById('pdf-rx');
       await new Promise(r => setTimeout(r, 500));
       const canvas = await html2canvas(el, {
@@ -594,68 +599,40 @@
           pdf.addImage(imgData, 'PNG', 0, -(i * pageH), pdfW, imgH);
         }
       }
-      const name = val('animalName') || 'patient';
-      pdf.save(`Prescription_${name}_${new Date().toISOString().slice(0,10)}.pdf`);
+      const animalName = val('animalName') || 'prescription';
+      const docShort = selectedDoctor.shortName.replace('Dr. ','').replace(' ','_');
+      pdf.save(`VetRx_${docShort}_${animalName}_${new Date().toISOString().slice(0,10)}.pdf`);
       renderArea.innerHTML = '';
-      showToast('✅ PDF downloaded!');
-    } catch(e) { showToast('❌ Error: ' + e.message); }
+    } catch(e) { alert('PDF error: ' + e.message); }
     btn.textContent = '⬇ Download PDF'; btn.disabled = false;
   }
 
-  async function shareRx() {
-    if (document.getElementById('prescriptionPreview').style.display === 'none') {
-      showToast('⚠️ Generate a prescription first'); return;
-    }
-    try {
-      const renderArea = document.getElementById('rx-render-area');
-      renderArea.innerHTML = buildRxHTML(getMeds(), 'share-rx');
-      const el = document.getElementById('share-rx');
-      await new Promise(r => setTimeout(r, 400));
-      const canvas = await html2canvas(el, { scale: 2, backgroundColor: '#ffffff', width: el.offsetWidth, height: el.offsetHeight, windowWidth: 794 });
-      canvas.toBlob(async (blob) => {
-        const file = new File([blob], `Prescription_${val('animalName')||'patient'}.png`, { type: 'image/png' });
-        if (navigator.canShare && navigator.canShare({ files: [file] })) {
-          await navigator.share({ files: [file], title: 'Veterinary Prescription', text: `Prescription from Dr. Arpita Sinha` });
-        } else {
-          showToast('📋 Use Download PDF to share');
-        }
-        renderArea.innerHTML = '';
-      }, 'image/png');
-    } catch(e) { showToast('Share cancelled'); }
-  }
-
-  // ── PWA ──
+  // ── PWA INSTALL ──
   let deferredPrompt = null;
   window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault();
-    deferredPrompt = e;
-    if (!localStorage.getItem('pwa-dismissed')) {
-      setTimeout(() => document.getElementById('installBanner').classList.add('show'), 2000);
+    e.preventDefault(); deferredPrompt = e;
+    if (!localStorage.getItem('vetrx-install-dismissed')) {
+      document.getElementById('install-banner').classList.add('show');
     }
   });
-
-  function installPWA() {
-    document.getElementById('installBanner').classList.remove('show');
-    if (deferredPrompt) {
-      deferredPrompt.prompt();
-      deferredPrompt.userChoice.then(r => {
-        if (r.outcome === 'accepted') showToast('🎉 VetRx added to home screen!');
-        deferredPrompt = null;
-      });
-    }
+  async function installApp() {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    await deferredPrompt.userChoice;
+    deferredPrompt = null;
+    document.getElementById('install-banner').classList.remove('show');
   }
-
   function dismissInstall() {
-    document.getElementById('installBanner').classList.remove('show');
-    localStorage.setItem('pwa-dismissed', '1');
+    localStorage.setItem('vetrx-install-dismissed','1');
+    document.getElementById('install-banner').classList.remove('show');
   }
 
-  window.addEventListener('appinstalled', () => showToast('🎉 VetRx installed successfully!'));
-
-  // Register service worker
+  // ── SERVICE WORKER ──
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('sw.js').catch(() => {});
+      navigator.serviceWorker.register('sw.js')
+        .then(r => console.log('SW registered'))
+        .catch(e => console.log('SW failed:', e));
     });
   }
 
