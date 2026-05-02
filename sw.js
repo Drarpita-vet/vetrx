@@ -1,5 +1,6 @@
-const CACHE = 'vetrx-v3';
+const CACHE = 'vetrx-v5';
 const ASSETS = [
+  './',
   './index.html',
   './manifest.json',
   'https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:wght@300;400;500;600&display=swap',
@@ -29,11 +30,11 @@ self.addEventListener('fetch', e => {
   e.respondWith(
     caches.match(e.request).then(cached => {
       if (cached) return cached;
-      return fetch(e.request).then(response => {
-        if (response && response.status === 200 && response.type === 'basic') {
-          caches.open(CACHE).then(cache => cache.put(e.request, response.clone()));
+      return fetch(e.request).then(res => {
+        if (res && res.status === 200 && res.type === 'basic') {
+          caches.open(CACHE).then(c => c.put(e.request, res.clone()));
         }
-        return response;
+        return res;
       }).catch(() => caches.match('./index.html'));
     })
   );
